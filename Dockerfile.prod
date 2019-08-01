@@ -30,6 +30,7 @@ COPY tsconfig.build.json ./
 COPY tsconfig.json ./
 COPY tsconfig-paths.js ./
 COPY .env.production ./
+COPY templates ./templates/
 
 RUN apk add --no-cache --virtual .gyp \
         python \

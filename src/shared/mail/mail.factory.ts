@@ -22,7 +22,7 @@ export class MailFactory implements MailerOptionsFactory {
         from: this.configService.get('MAILER_FROM'),
       },
       template: {
-        dir: __dirname + '/templates',
+        dir: __dirname + '/../../../templates',
         adapter: new HandlebarsAdapter(),
         options: {
           strict: true,
