@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { UserService } from './user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from 'src/feature/notenic/user/user.entity';
 import { DatabaseFactory } from '../database/database.factory';
+import { User } from '@notenic/user/user.entity';
 
 @Module({
   imports: [

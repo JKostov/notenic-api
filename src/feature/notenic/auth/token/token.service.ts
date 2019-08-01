@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ITokenService } from './interfaces/token.service.interface';
 import { JwtService } from '@nestjs/jwt';
 import { IUserService } from '../../user/user.service.interface';
-import { User } from '../../user/user.entity';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -14,6 +13,7 @@ import { ForgotPasswordDto } from '@notenic/auth/token/dto/forgot-password.dto';
 import { IPasswordResetService } from '@notenic/auth/password-reset.service.interface';
 import { ResetPasswordDto } from '@notenic/auth/token/dto/reset-password.dto';
 import { IConfigService } from '@app/shared/config/interfaces/config.service.interface';
+import { User } from '@notenic/user/user.entity';
 
 const tokenExpiredMessage = 'Email verification expired. Register again.';
 const tokenInvalidMessage = 'Email verification invalid.';

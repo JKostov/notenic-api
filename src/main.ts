@@ -3,9 +3,14 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from '@app/app.module';
 import * as helmet from 'helmet';
 import { ValidationPipe } from '@nestjs/common';
+import { NotenicLoggerService } from '@app/shared/logger/notenic-logger.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: false,
+  });
+  app.useLogger(app.get(NotenicLoggerService));
+  app.setGlobalPrefix('/api');
   app.useGlobalPipes(new ValidationPipe());
   app.use(helmet());
   app.enableCors();

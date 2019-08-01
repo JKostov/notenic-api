@@ -1,0 +1,42 @@
+FROM node:10.16-alpine as builder
+
+RUN mkdir -p /app/src
+WORKDIR /app
+
+RUN apk add \
+        python \
+        make \
+        g++
+
+ADD package.json /app/package.json
+ADD . /app
+
+RUN npm ci
+
+RUN ["npm", "run", "test"]
+
+RUN ["npm", "run", "prestart:prod"]
+
+## production environment ##
+FROM node:10.16-alpine
+
+RUN mkdir -p /app
+WORKDIR /app
+
+COPY --from=builder /app/dist ./dist
+COPY package.json ./
+COPY package-lock.json ./
+COPY tsconfig.build.json ./
+COPY tsconfig.json ./
+COPY tsconfig-paths.js ./
+COPY .env.production ./
+
+RUN apk add --no-cache --virtual .gyp \
+        python \
+        make \
+        g++ \
+    && npm ci --production \
+    && apk del .gyp
+
+#EXPOSE 3000
+CMD node -r ./tsconfig-paths.js dist/main.js
