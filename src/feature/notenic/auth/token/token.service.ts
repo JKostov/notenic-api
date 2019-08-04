@@ -38,14 +38,14 @@ export class TokenService implements ITokenService {
       return null;
     }
 
-    if (!user.enabled) {
-      throw new HttpException('Please confirm your email address.', HttpStatus.BAD_REQUEST);
-    }
-
     const result = await TokenService.compareHash(userData.password, user.password);
 
     if (!result) {
       return null;
+    }
+
+    if (!user.enabled) {
+      throw new HttpException('Please confirm your email address.', HttpStatus.BAD_REQUEST);
     }
 
     delete user.password;
