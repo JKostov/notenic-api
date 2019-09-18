@@ -14,6 +14,7 @@ import { IPasswordResetService } from '@notenic/auth/password-reset.service.inte
 import { ResetPasswordDto } from '@notenic/auth/token/dto/reset-password.dto';
 import { IConfigService } from '@app/shared/config/interfaces/config.service.interface';
 import { User } from '@notenic/user/user.entity';
+import { Token } from '@notenic/auth/token/interfaces/token.interface';
 
 const tokenExpiredMessage = 'Email verification expired. Register again.';
 const tokenInvalidMessage = 'Email verification invalid.';
@@ -50,7 +51,9 @@ export class TokenService implements ITokenService {
 
     delete user.password;
 
-    const token = await this.jwtService.signAsync({ email: user.email, username: user.username });
+    const tokenData: Token = { id: user.id, email: user.email, username: user.username };
+
+    const token = await this.jwtService.signAsync(tokenData);
 
     return { user, token };
   }
@@ -142,5 +145,16 @@ export class TokenService implements ITokenService {
 
   static async generateHash(password: string): Promise<string> {
     return await bcrypt.hash(password, TokenService.saltRounds);
+  }
+
+  async verifyTokenAndGetData(token: string): Promise<Token> {
+    let data = null;
+    try {
+      data = await this.jwtService.verifyAsync(token);
+    } catch (e) {
+      return null;
+    }
+
+    return data;
   }
 }

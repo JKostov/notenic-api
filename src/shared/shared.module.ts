@@ -8,6 +8,7 @@ import { LoggerModule } from './logger/logger.module';
     ConfigModule,
     MailModule,
     LoggerModule,
+
   ],
   exports: [ConfigModule, MailModule, LoggerModule],
 })

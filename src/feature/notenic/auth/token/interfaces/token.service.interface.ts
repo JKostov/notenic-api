@@ -4,6 +4,7 @@ import { LoginSuccessDto } from '../dto/login-success.dto';
 import { VerifyRegistrationDto } from '@notenic/auth/token/dto/verify-registration.dto';
 import { ForgotPasswordDto } from '@notenic/auth/token/dto/forgot-password.dto';
 import { ResetPasswordDto } from '@notenic/auth/token/dto/reset-password.dto';
+import { Token } from '@notenic/auth/token/interfaces/token.interface';
 
 export interface ITokenService {
   login(userData: LoginDto): Promise<LoginSuccessDto>;
@@ -16,5 +17,5 @@ export interface ITokenService {
 
   resetPassword(resetPasswordDto: ResetPasswordDto): Promise<void>;
 
-  // validateUser(payload: JwtPayload): Promise<any>;
+  verifyTokenAndGetData(token: string): Promise<Token>;
 }

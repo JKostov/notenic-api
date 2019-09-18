@@ -6,9 +6,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NotenicLoggerService } from '@app/shared/logger/notenic-logger.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    logger: false,
-  });
+  const app = await NestFactory.create(AppModule);
   app.useLogger(app.get(NotenicLoggerService));
   app.setGlobalPrefix('/api');
   app.useGlobalPipes(new ValidationPipe());

@@ -12,7 +12,8 @@
     "incremental": true,
     "paths": {
       "@app/*": ["./src/*"],
-      "@notenic/*": ["./src/feature/notenic/*"]
+      "@notenic/*": ["./src/feature/notenic/*"],
+      "@files/*": ["./src/feature/files/*"]
     }
   },
   "exclude": ["node_modules"]
