@@ -6,6 +6,9 @@ describe('Images Controller', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        { provide: 'ITokenService', useValue: {} },
+      ],
       controllers: [ImagesController],
     }).compile();
 
