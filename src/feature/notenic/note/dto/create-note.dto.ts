@@ -1,4 +1,4 @@
-import { IsBoolean, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsString } from 'class-validator';
 
 export class CreateNoteDto {
   @IsString()
@@ -12,4 +12,7 @@ export class CreateNoteDto {
 
   @IsBoolean()
   public: boolean;
+
+  @IsArray()
+  tags: string[];
 }

@@ -28,6 +28,10 @@ export class Note {
   @Column()
   public: boolean;
 
+  @Expose()
+  @Column('text', { array: true, nullable: true })
+  tags: string[];
+
   @ManyToOne(type => User, user => user.notes)
   user: User;
 
