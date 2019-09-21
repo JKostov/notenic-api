@@ -9,7 +9,7 @@ export class ImagesController {
 
   @Post('')
   @UseGuards(LoggedGuard)
-  @UseInterceptors(FilesInterceptor('images', 10))
+  @UseInterceptors(FilesInterceptor('images[]', 10))
   public async upload(@UploadedFiles() images, @Res() res) {
     const imageUrls: string[] = [];
 
