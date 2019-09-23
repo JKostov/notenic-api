@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 import { User } from '@notenic/user/user.entity';
+import { Comment } from '@notenic/comment/comment.entity';
 
 @Exclude()
 @Entity({
@@ -32,8 +33,14 @@ export class Note {
   @Column('text', { array: true, nullable: true })
   tags: string[];
 
+  @Column('text', { array: true, nullable: true })
+  likes: string[];
+
   @ManyToOne(type => User, user => user.notes)
   user: User;
+
+  @OneToMany(type => Comment, comment => comment.note)
+  comments: Comment[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
