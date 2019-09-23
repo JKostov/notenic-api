@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { User } from '@notenic/user/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -60,5 +60,24 @@ export class UserService extends AbstractService<User> implements IUserService {
   async updatePassword(user: User, password: string): Promise<User> {
     user.password = password;
     return await this.repository.save(user);
+  }
+
+  async getUserInfoWithNotes(username: string, loadPrivateNotes: boolean): Promise<User> {
+    const p = [true];
+    if (loadPrivateNotes) {
+      p.push(false);
+    }
+
+    const user = await this.repository.createQueryBuilder('u')
+      .select(['u.id', 'u.username', 'u.firstName', 'u.lastName', 'u.createdAt'])
+      .innerJoin('u.notes', 'note', 'note.public IN :public', { public: p })
+      .where('u.username = :username', { username })
+      .getOne();
+
+    if (!user) {
+      throw new NotFoundException('User not found.');
+    }
+
+    return user;
   }
 }
