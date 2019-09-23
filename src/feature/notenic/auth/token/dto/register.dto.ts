@@ -1,4 +1,5 @@
-import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsEmail, IsIn, IsString, MaxLength, MinLength } from 'class-validator';
+import { User } from '@notenic/user/user.entity';
 
 export class RegisterDto {
   @IsString()
@@ -19,4 +20,8 @@ export class RegisterDto {
   @IsString()
   @MinLength(8)
   readonly password: string;
+
+  @IsString()
+  @IsIn([User.GenderMale, User.GenderFemale])
+  readonly gender: 'male' | 'female';
 }

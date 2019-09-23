@@ -63,14 +63,16 @@ export class UserService extends AbstractService<User> implements IUserService {
   }
 
   async getUserInfoWithNotes(username: string, loadPrivateNotes: boolean): Promise<User> {
-    const p = [true];
+    const pub = [true];
     if (loadPrivateNotes) {
-      p.push(false);
+      pub.push(false);
     }
 
     const user = await this.repository.createQueryBuilder('u')
-      .select(['u.id', 'u.username', 'u.firstName', 'u.lastName', 'u.createdAt'])
-      .innerJoin('u.notes', 'note', 'note.public IN :public', { public: p })
+      .select(['u.id', 'u.gender', 'u.education', 'u.work', 'u.about', 'note.id', 'note.image', 'note.likes', 'note.tags', 'note.title',
+        'note.createdAt', 'u.username', 'u.firstName', 'u.lastName', 'u.createdAt', 'comment.id'])
+      .leftJoin('u.notes', 'note', 'note.public IN (:...pub)', { pub })
+      .leftJoin('note.comments', 'comment')
       .where('u.username = :username', { username })
       .getOne();
 

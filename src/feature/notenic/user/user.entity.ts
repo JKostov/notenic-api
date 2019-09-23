@@ -8,6 +8,9 @@ import { Note } from '@notenic/note/note.entity';
   name: 'users',
 })
 export class User {
+  public static GenderMale = 'male';
+  public static GenderFemale = 'female';
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -46,6 +49,34 @@ export class User {
     default: false,
   })
   enabled: boolean;
+
+  @Expose()
+  @Column({
+    length: 255,
+    nullable: true,
+  })
+  work: string;
+
+  @Expose()
+  @Column({
+    length: 255,
+    nullable: true,
+  })
+  education: string;
+
+  @Expose()
+  @Column({
+    length: 500,
+    nullable: true,
+  })
+  about: string;
+
+  @Expose()
+  @Column({
+    length: 15,
+    default: this.GenderMale,
+  })
+  gender: string;
 
   @Expose()
   @Column({

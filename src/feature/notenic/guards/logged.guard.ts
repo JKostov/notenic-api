@@ -1,10 +1,10 @@
-import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
-import { ITokenService } from '@notenic/auth/token/interfaces/token.service.interface';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Token } from '@notenic/auth/token/interfaces/token.interface';
+import { JwtTokenService } from '@notenic/jwt-token/jwt-token.service';
 
 @Injectable()
 export class LoggedGuard implements CanActivate {
-  constructor(@Inject('ITokenService') private readonly tokenService: ITokenService) { }
+  constructor(private readonly tokenService: JwtTokenService) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();

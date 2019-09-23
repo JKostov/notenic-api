@@ -1,6 +1,5 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ITokenService } from './interfaces/token.service.interface';
-import { JwtService } from '@nestjs/jwt';
 import { IUserService } from '../../user/user.service.interface';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
@@ -15,6 +14,7 @@ import { ResetPasswordDto } from '@notenic/auth/token/dto/reset-password.dto';
 import { IConfigService } from '@app/shared/config/interfaces/config.service.interface';
 import { User } from '@notenic/user/user.entity';
 import { Token } from '@notenic/auth/token/interfaces/token.interface';
+import { JwtTokenService } from '@notenic/jwt-token/jwt-token.service';
 
 const tokenExpiredMessage = 'Email verification expired. Register again.';
 const tokenInvalidMessage = 'Email verification invalid.';
@@ -25,7 +25,7 @@ export class TokenService implements ITokenService {
   private static readonly saltRounds = 10;
 
   constructor(
-    private readonly jwtService: JwtService,
+    private readonly jwtService: JwtTokenService,
     private readonly mailerService: MailerService,
     @Inject('IConfigService') private readonly configService: IConfigService,
     @Inject('IUserService') private readonly userService: IUserService,
@@ -148,13 +148,6 @@ export class TokenService implements ITokenService {
   }
 
   async verifyTokenAndGetData(token: string): Promise<Token> {
-    let data = null;
-    try {
-      data = await this.jwtService.verifyAsync(token);
-    } catch (e) {
-      return null;
-    }
-
-    return data;
+    return this.jwtService.verifyTokenAndGetData(token);
   }
 }

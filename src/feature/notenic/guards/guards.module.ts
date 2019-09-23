@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
 import { LoggedGuard } from '@notenic/guards/logged.guard';
-import { AuthModule } from '@notenic/auth/auth.module';
 import { LoggedOrNotGuard } from '@notenic/guards/logged-or-not.guard';
+import { JwtTokenModule } from '@notenic/jwt-token/jwt-token.module';
 
 @Module({
   imports: [
-    AuthModule,
+    JwtTokenModule,
   ],
   providers: [
     LoggedGuard,
     LoggedOrNotGuard,
   ],
-  exports: [AuthModule],
+  exports: [JwtTokenModule],
 })
 export class GuardsModule {}

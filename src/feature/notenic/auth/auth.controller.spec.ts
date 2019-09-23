@@ -8,10 +8,7 @@ import { PasswordReset } from '@notenic/auth/password-reset.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DatabaseFactory } from '@notenic/database/database.factory';
 import { User } from '@notenic/user/user.entity';
-import { SharedModule } from '@app/shared/shared.module';
-import { TokenFactory } from '@notenic/auth/token/token.factory';
 import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
 
 describe('Auth Controller', () => {
   let controller: AuthController;
@@ -20,10 +17,6 @@ describe('Auth Controller', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         PassportModule.register({ defaultStrategy: 'jwt' }),
-        JwtModule.registerAsync({
-          imports: [SharedModule],
-          useClass: TokenFactory,
-        }),
       ],
       controllers: [AuthController],
       providers: [
