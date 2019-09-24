@@ -7,7 +7,7 @@ import { PasswordResetService } from '@notenic/auth/password-reset.service';
 import { PasswordReset } from '@notenic/auth/password-reset.entity';
 import { DatabaseFactory } from '@notenic/database/database.factory';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtTokenModule } from '@notenic/jwt-token/jwt-token.module';
+import { JwtTokenModule } from '@app/shared/jwt-token/jwt-token.module';
 
 @Module({
   imports: [

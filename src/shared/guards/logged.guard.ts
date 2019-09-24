@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { Token } from '@notenic/auth/token/interfaces/token.interface';
-import { JwtTokenService } from '@notenic/jwt-token/jwt-token.service';
+import { Token } from '../../feature/notenic/auth/token/interfaces/token.interface';
+import { JwtTokenService } from '../jwt-token/jwt-token.service';
 
 @Injectable()
 export class LoggedGuard implements CanActivate {

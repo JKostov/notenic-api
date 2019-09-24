@@ -1,8 +1,8 @@
 import { Controller, Post, Res, UseInterceptors, UseGuards, UploadedFiles, HttpStatus, Get, Param, Delete } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { LoggedGuard } from '@notenic/guards/logged.guard';
 import * as path from 'path';
 import * as fs from 'fs';
+import { LoggedGuard } from '@app/shared/guards/logged.guard';
 
 @Controller('images')
 export class ImagesController {

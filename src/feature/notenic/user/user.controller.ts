@@ -1,9 +1,9 @@
-import { BadRequestException, Body, Controller, Get, HttpStatus, Inject, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Inject, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { IUserService } from '@notenic/user/user.service.interface';
-import { LoggedOrNotGuard } from '@notenic/guards/logged-or-not.guard';
 import { User } from '@notenic/user/user.entity';
-import { LoggedGuard } from '@notenic/guards/logged.guard';
 import { UpdateUserDto } from '@notenic/user/dto/update-user.dto';
+import { LoggedGuard } from '@app/shared/guards/logged.guard';
+import { LoggedOrNotGuard } from '@app/shared/guards/logged-or-not.guard';
 
 @Controller('users')
 export class UserController {

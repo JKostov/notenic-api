@@ -4,12 +4,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseFactory } from '../database/database.factory';
 import { User } from '@notenic/user/user.entity';
 import { UserController } from './user.controller';
-import { GuardsModule } from '@notenic/guards/guards.module';
+import { SharedModule } from '@app/shared/shared.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User], DatabaseFactory.connectionName),
-    GuardsModule,
+    SharedModule,
   ],
   providers: [{
     provide: 'IUserService',

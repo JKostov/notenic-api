@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NoteController } from './note.controller';
-import { LoggedGuard } from '@notenic/guards/logged.guard';
+import { LoggedGuard } from '@notenic/../../../shared/guards/logged.guard';
 
 describe('Note Controller', () => {
   let controller: NoteController;

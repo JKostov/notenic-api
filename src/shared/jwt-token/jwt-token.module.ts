@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { SharedModule } from '@app/shared/shared.module';
-import { TokenFactory } from '@notenic/jwt-token/token.factory';
+import { TokenFactory } from './token.factory';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtTokenService } from './jwt-token.service';
+import { ConfigModule } from '@app/shared/config/config.module';
 
 @Module({
   imports: [
     JwtModule.registerAsync({
-      imports: [SharedModule],
+      imports: [ConfigModule],
       useClass: TokenFactory,
     }),
   ],

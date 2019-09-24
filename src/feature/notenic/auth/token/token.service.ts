@@ -14,7 +14,7 @@ import { ResetPasswordDto } from '@notenic/auth/token/dto/reset-password.dto';
 import { IConfigService } from '@app/shared/config/interfaces/config.service.interface';
 import { User } from '@notenic/user/user.entity';
 import { Token } from '@notenic/auth/token/interfaces/token.interface';
-import { JwtTokenService } from '@notenic/jwt-token/jwt-token.service';
+import { JwtTokenService } from '@app/shared/jwt-token/jwt-token.service';
 
 const tokenExpiredMessage = 'Email verification expired. Register again.';
 const tokenInvalidMessage = 'Email verification invalid.';

@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ImagesController } from './images.controller';
-import { GuardsModule } from '@notenic/guards/guards.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { randomBytes } from 'crypto';
+import { SharedModule } from '@app/shared/shared.module';
 
 @Module({
   imports: [
-    GuardsModule,
+    SharedModule,
     MulterModule.register({
       storage: diskStorage({
         destination: (req, file, cb) => cb(null, 'uploads/images'),

@@ -1,11 +1,11 @@
 import { Body, Controller, Get, HttpStatus, Inject, NotFoundException, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { INoteService } from '@notenic/note/note.service.interface';
 import { CreateNoteDto } from '@notenic/note/dto/create-note.dto';
-import { LoggedGuard } from '@notenic/guards/logged.guard';
 import { AddCommentDto } from '@notenic/comment/dto/add.comment.dto';
 import { ICommentService } from '@notenic/comment/comment.service.interface';
 import { LikeNoteDto } from '@notenic/note/dto/like-note.dto';
 import { IUserService } from '@notenic/user/user.service.interface';
+import { LoggedGuard } from '@app/shared/guards/logged.guard';
 
 @Controller('notes')
 export class NoteController {
