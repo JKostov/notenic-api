@@ -40,4 +40,4 @@ RUN apk add --no-cache --virtual .gyp \
     && apk del .gyp
 
 #EXPOSE 3000
-CMD node -r ./tsconfig-paths.js dist/main.js
+CMD bin/start.sh

@@ -20,7 +20,12 @@
     "test:watch": "export NODE_ENV=test && jest --watchAll",
     "test:cov": "export NODE_ENV=test && jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "migration:generate": "./node_modules/.bin/ts-node -r tsconfig-paths/register ./node_modules/.bin/typeorm migration:generate -n",
+    "schema:sync": "./node_modules/.bin/ts-node -r tsconfig-paths/register ./node_modules/.bin/typeorm schema:sync",
+    "schema:drop": "./node_modules/.bin/ts-node -r tsconfig-paths/register ./node_modules/.bin/typeorm schema:drop",
+    "migration:run": "./node_modules/.bin/ts-node -r tsconfig-paths/register ./node_modules/.bin/typeorm migration:run",
+    "migration:revert": "./node_modules/.bin/ts-node -r tsconfig-paths/register ./node_modules/.bin/typeorm migration:revert"
   },
   "dependencies": {
     "@nest-modules/mailer": "^1.1.3",
@@ -46,7 +51,8 @@
     "rxjs": "^6.3.3",
     "swagger-ui-express": "^4.0.7",
     "tsconfig-paths": "3.8.0",
-    "typeorm": "^0.2.18"
+    "typeorm": "^0.2.18",
+    "ts-node": "8.1.0"
   },
   "devDependencies": {
     "@nestjs/testing": "^6.5.3",

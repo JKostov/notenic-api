@@ -4,7 +4,7 @@ import { LoginSuccessDto } from '../dto/login-success.dto';
 import { VerifyRegistrationDto } from '@notenic/auth/token/dto/verify-registration.dto';
 import { ForgotPasswordDto } from '@notenic/auth/token/dto/forgot-password.dto';
 import { ResetPasswordDto } from '@notenic/auth/token/dto/reset-password.dto';
-import { Token } from '@notenic/auth/token/interfaces/token.interface';
+import { Token } from '@notenic/../../../../shared/jwt-token/token.interface';
 
 export interface ITokenService {
   login(userData: LoginDto): Promise<LoginSuccessDto>;

@@ -13,8 +13,8 @@ import { IPasswordResetService } from '@notenic/auth/password-reset.service.inte
 import { ResetPasswordDto } from '@notenic/auth/token/dto/reset-password.dto';
 import { IConfigService } from '@app/shared/config/interfaces/config.service.interface';
 import { User } from '@notenic/user/user.entity';
-import { Token } from '@notenic/auth/token/interfaces/token.interface';
 import { JwtTokenService } from '@app/shared/jwt-token/jwt-token.service';
+import { Token } from '@app/shared/jwt-token/token.interface';
 
 const tokenExpiredMessage = 'Email verification expired. Register again.';
 const tokenInvalidMessage = 'Email verification invalid.';

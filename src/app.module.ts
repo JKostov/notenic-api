@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { SharedModule } from '@app/shared/shared.module';
-import { FeatureModule } from '@app/feature/feature.module';
+import { NotenicModule } from '@notenic/notenic.module';
 
 @Module({
   imports: [
     SharedModule,
-    FeatureModule,
+    NotenicModule,
   ],
 })
 export class AppModule {}

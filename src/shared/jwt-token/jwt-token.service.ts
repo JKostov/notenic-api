@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as jwt from 'jsonwebtoken';
-import { Token } from '../../feature/notenic/auth/token/interfaces/token.interface';
+import { Token } from '@app/shared/jwt-token/token.interface';
 
 @Injectable()
 export class JwtTokenService {
