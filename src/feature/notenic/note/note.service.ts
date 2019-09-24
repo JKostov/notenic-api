@@ -18,7 +18,7 @@ export class NoteService implements INoteService {
 
   async getNotes(limit: number = 10, page: number = 0): Promise<Note[]> {
     return await this.noteRepository.createQueryBuilder('n')
-      .select(['n', 'comment.id', 'u.id', 'u.username', 'u.firstName', 'u.lastName'])
+      .select(['n', 'comment.id', 'u.id', 'u.username', 'u.firstName', 'u.lastName', 'u.gender', 'u.image'])
       .innerJoin('n.user', 'u')
       .leftJoin('n.comments', 'comment')
       .where('n.public = true')
@@ -36,7 +36,8 @@ export class NoteService implements INoteService {
     }
 
     return await this.noteRepository.createQueryBuilder('n')
-      .select(['n', 'u.id', 'user.id', 'user.username', 'user.id', 'user.username', 'u.username', 'u.firstName', 'u.lastName'])
+      .select(['n', 'u.id', 'user.id', 'user.username', 'user.image', 'user.gender',
+        'user.id', 'user.username', 'u.username', 'u.firstName', 'u.lastName', 'u.gender', 'u.image'])
       .innerJoin('n.user', 'u')
       .leftJoinAndSelect('n.comments', 'comment')
       .leftJoin('comment.user', 'user')

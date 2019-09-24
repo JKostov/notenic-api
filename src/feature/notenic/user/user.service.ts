@@ -1,10 +1,12 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { User } from '@notenic/user/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DatabaseFactory } from '../database/database.factory';
 import { IUserService } from './user.service.interface';
 import { AbstractService } from '@app/shared/types/abstract.service';
+import { UpdateUserDto } from '@notenic/user/dto/update-user.dto';
+import { TokenService } from '@notenic/auth/token/token.service';
 
 const userNotFoundMessage = 'User not found.';
 
@@ -69,7 +71,7 @@ export class UserService extends AbstractService<User> implements IUserService {
     }
 
     const user = await this.repository.createQueryBuilder('u')
-      .select(['u.id', 'u.gender', 'u.education', 'u.work', 'u.about', 'note.id', 'note.image', 'note.likes', 'note.tags', 'note.title',
+      .select(['u.id', 'u.image', 'u.gender', 'u.education', 'u.work', 'u.about', 'note.id', 'note.image', 'note.likes', 'note.tags', 'note.title',
         'note.createdAt', 'u.username', 'u.firstName', 'u.lastName', 'u.createdAt', 'comment.id'])
       .leftJoin('u.notes', 'note', 'note.public IN (:...pub)', { pub })
       .leftJoin('note.comments', 'comment')
@@ -81,5 +83,42 @@ export class UserService extends AbstractService<User> implements IUserService {
     }
 
     return user;
+  }
+
+  async updateUser(user: User, updateUserDto: UpdateUserDto): Promise<User> {
+    const u = await this.repository.findOne(user.id);
+
+    if (!u) {
+      throw new NotFoundException('User not found.');
+    }
+
+    u.firstName = updateUserDto.firstName;
+    u.lastName = updateUserDto.lastName;
+    u.gender = updateUserDto.gender;
+    u.work = updateUserDto.work;
+    u.education = updateUserDto.education;
+    u.about = updateUserDto.about;
+    u.image = updateUserDto.image;
+
+    if (updateUserDto.oldPassword) {
+      const result = await TokenService.compareHash(u.password, updateUserDto.oldPassword);
+
+      if (!result) {
+        throw new BadRequestException('Invalid password');
+      }
+
+      u.password = await TokenService.generateHash(updateUserDto.newPassword);
+    }
+
+    await this.repository.save(u);
+
+    return u;
+  }
+
+  async getByIdPublic(userId: string): Promise<User> {
+    return await this.repository.createQueryBuilder('u')
+      .select(['u.id', 'u.image', 'u.gender', 'u.education', 'u.work', 'u.about', 'u.username', 'u.firstName', 'u.lastName'])
+      .where('u.id = :id', { id: userId })
+      .getOne();
   }
 }

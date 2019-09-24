@@ -5,11 +5,13 @@ import { LoggedGuard } from '@notenic/guards/logged.guard';
 import { AddCommentDto } from '@notenic/comment/dto/add.comment.dto';
 import { ICommentService } from '@notenic/comment/comment.service.interface';
 import { LikeNoteDto } from '@notenic/note/dto/like-note.dto';
+import { IUserService } from '@notenic/user/user.service.interface';
 
 @Controller('notes')
 export class NoteController {
   constructor(@Inject('INoteService') private readonly noteService: INoteService,
-              @Inject('ICommentService') private readonly commentService: ICommentService) { }
+              @Inject('ICommentService') private readonly commentService: ICommentService,
+              @Inject('IUserService') private readonly userService: IUserService) { }
 
   @Get('')
   public async getNotes(@Req() req, @Res() res) {
@@ -48,8 +50,9 @@ export class NoteController {
     const noteId = param.noteId;
 
     const note = await this.noteService.getPublicNoteById(noteId);
+    const u = await this.userService.getByIdPublic(user.id);
 
-    const comment = await this.commentService.createComment(addCommentDto.markdown, note, user);
+    const comment = await this.commentService.createComment(addCommentDto.markdown, note, u);
 
     return res.status(HttpStatus.OK).json(comment);
   }

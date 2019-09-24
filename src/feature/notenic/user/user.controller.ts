@@ -1,7 +1,9 @@
-import { Controller, Get, HttpStatus, Inject, Param, Req, Res, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpStatus, Inject, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { IUserService } from '@notenic/user/user.service.interface';
 import { LoggedOrNotGuard } from '@notenic/guards/logged-or-not.guard';
 import { User } from '@notenic/user/user.entity';
+import { LoggedGuard } from '@notenic/guards/logged.guard';
+import { UpdateUserDto } from '@notenic/user/dto/update-user.dto';
 
 @Controller('users')
 export class UserController {
@@ -19,6 +21,16 @@ export class UserController {
     }
 
     const user = await this.userService.getUserInfoWithNotes(username, loadPrivateNotes);
+
+    return res.status(HttpStatus.OK).json(user);
+  }
+
+  @Post('')
+  @UseGuards(LoggedGuard)
+  public async updateUser(@Body() updateUserDto: UpdateUserDto, @Req() req, @Res() res) {
+    const loggedUser: User = req.user;
+
+    const user = await this.userService.updateUser(loggedUser, updateUserDto);
 
     return res.status(HttpStatus.OK).json(user);
   }

@@ -82,6 +82,12 @@ export class User {
   @Column({
     nullable: true,
   })
+  image: string;
+
+  @Expose()
+  @Column({
+    nullable: true,
+  })
   registrationToken: string;
 
   @OneToMany(type => PasswordReset, passwordReset => passwordReset.user)
