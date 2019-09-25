@@ -6,12 +6,15 @@ import { ICommentService } from '@notenic/comment/comment.service.interface';
 import { LikeNoteDto } from '@notenic/note/dto/like-note.dto';
 import { IUserService } from '@notenic/user/user.service.interface';
 import { LoggedGuard } from '@app/shared/guards/logged.guard';
+import { ClientProxy } from '@nestjs/microservices';
+import { first } from 'rxjs/operators';
 
 @Controller('notes')
 export class NoteController {
   constructor(@Inject('INoteService') private readonly noteService: INoteService,
               @Inject('ICommentService') private readonly commentService: ICommentService,
-              @Inject('IUserService') private readonly userService: IUserService) { }
+              @Inject('IUserService') private readonly userService: IUserService,
+              @Inject('SERVICES_CLIENT') private readonly client: ClientProxy) { }
 
   @Get('')
   public async getNotes(@Req() req, @Res() res) {
@@ -24,6 +27,12 @@ export class NoteController {
   public async getNote(@Param() param, @Res() res) {
     const username = param.username;
     const noteTitle = param.noteTitle;
+
+    const data = await this.client.send<number>({ cmd: 'sum' }, [1, 2, 3, 4]);
+    data.pipe(first()).subscribe(asd => console.log(asd));
+
+    const asd = this.client.emit('test_test', 'api');
+    asd.pipe(first()).subscribe();
 
     const note = await this.noteService.getPublicNote(username, noteTitle);
     if (!note) {
