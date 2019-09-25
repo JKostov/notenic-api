@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 
 sshpass -p $DEPLOY_PASSWORD ssh -A travis@$DEPLOY_SERVER <<EOF
     cd $DEPLOY_DIR

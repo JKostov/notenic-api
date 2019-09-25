@@ -31,6 +31,9 @@ COPY tsconfig.json ./
 COPY tsconfig-paths.js ./
 COPY .env.production ./
 COPY templates ./templates/
+COPY bin/start.sh ./bin/start.sh
+COPY migrations ./migrations
+COPY src/main.ts ./dist/main.ts
 
 RUN apk add --no-cache --virtual .gyp \
         python \
@@ -40,4 +43,4 @@ RUN apk add --no-cache --virtual .gyp \
     && apk del .gyp
 
 #EXPOSE 3000
-CMD bin/start.sh
+CMD sh bin/start.sh

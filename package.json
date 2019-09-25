@@ -25,6 +25,7 @@
     "schema:sync": "./node_modules/.bin/ts-node -r tsconfig-paths/register ./node_modules/.bin/typeorm schema:sync",
     "schema:drop": "./node_modules/.bin/ts-node -r tsconfig-paths/register ./node_modules/.bin/typeorm schema:drop",
     "migration:run": "./node_modules/.bin/ts-node -r tsconfig-paths/register ./node_modules/.bin/typeorm migration:run",
+    "migration:run-prod": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm migration:run",
     "migration:revert": "./node_modules/.bin/ts-node -r tsconfig-paths/register ./node_modules/.bin/typeorm migration:revert"
   },
   "dependencies": {
@@ -52,7 +53,8 @@
     "swagger-ui-express": "^4.0.7",
     "tsconfig-paths": "3.8.0",
     "typeorm": "^0.2.18",
-    "ts-node": "8.1.0"
+    "ts-node": "8.1.0",
+    "typescript": "3.4.3"
   },
   "devDependencies": {
     "@nestjs/testing": "^6.5.3",
@@ -68,9 +70,7 @@
     "prettier": "^1.15.3",
     "supertest": "^3.4.1",
     "ts-jest": "24.0.2",
-    "ts-node": "8.1.0",
     "tslint": "5.16.0",
-    "typescript": "3.4.3",
     "wait-on": "^3.3.0"
   },
   "jest": {
@@ -88,8 +88,7 @@
     "testEnvironment": "node",
     "moduleNameMapper": {
       "@app/(.*)": "<rootDir>/$1",
-      "@notenic/(.*)": "<rootDir>/feature/notenic/$1",
-      "@files/(.*)": "<rootDir>/feature/files/$1"
+      "@notenic/(.*)": "<rootDir>/notenic/$1"
     }
   }
 }

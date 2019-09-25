@@ -22,10 +22,6 @@ export class DatabaseFactory implements TypeOrmOptionsFactory {
       database: this.configService.get('TYPEORM_DATABASE'),
       synchronize: false,
       entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-      migrations: ['migrations/*.ts'],
-      cli: {
-        migrationsDir: 'migrations',
-      },
     };
   }
 

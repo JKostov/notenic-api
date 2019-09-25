@@ -101,7 +101,7 @@ export class UserService extends AbstractService<User> implements IUserService {
     u.image = updateUserDto.image;
 
     if (updateUserDto.oldPassword) {
-      const result = await TokenService.compareHash(u.password, updateUserDto.oldPassword);
+      const result = await TokenService.compareHash(updateUserDto.oldPassword, u.password);
 
       if (!result) {
         throw new BadRequestException('Invalid password');
