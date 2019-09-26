@@ -33,7 +33,7 @@ export class TokenService implements ITokenService {
   ) {}
 
   async login(userData: LoginDto): Promise<LoginSuccessDto> {
-    const user = await this.userService.getOneByEmail(userData.email);
+    const user = await this.userService.getOneByEmailComplete(userData.email);
 
     if (!user) {
       return null;

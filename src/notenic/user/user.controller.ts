@@ -4,6 +4,7 @@ import { User } from '@notenic/user/user.entity';
 import { UpdateUserDto } from '@notenic/user/dto/update-user.dto';
 import { LoggedGuard } from '@app/shared/guards/logged.guard';
 import { LoggedOrNotGuard } from '@app/shared/guards/logged-or-not.guard';
+import { FollowUserDto } from '@notenic/user/dto/follow-user.dto';
 
 @Controller('users')
 export class UserController {
@@ -31,6 +32,16 @@ export class UserController {
     const loggedUser: User = req.user;
 
     const user = await this.userService.updateUser(loggedUser, updateUserDto);
+
+    return res.status(HttpStatus.OK).json(user);
+  }
+
+  @Post('follow')
+  @UseGuards(LoggedGuard)
+  public async followUser(@Body() followUserDto: FollowUserDto, @Req() req, @Res() res) {
+    const loggedUser: User = req.user;
+
+    const user = await this.userService.followUser(loggedUser, followUserDto);
 
     return res.status(HttpStatus.OK).json(user);
   }

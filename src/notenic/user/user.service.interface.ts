@@ -1,9 +1,12 @@
 import { User } from './user.entity';
 import { IService } from '@app/shared/types/abstract.service.interface';
 import { UpdateUserDto } from '@notenic/user/dto/update-user.dto';
+import { FollowUserDto } from '@notenic/user/dto/follow-user.dto';
 
 export interface IUserService extends IService<User> {
   getOneByEmail(email: string): Promise<User>;
+
+  getOneByEmailComplete(email: string): Promise<User>;
 
   getOneByUsername(username: string): Promise<User>;
 
@@ -18,4 +21,6 @@ export interface IUserService extends IService<User> {
   updateUser(user: User, updateUserDto: UpdateUserDto): Promise<User>;
 
   getByIdPublic(userId: string): Promise<User>;
+
+  followUser(user: User, followUserDto: FollowUserDto): Promise<User>;
 }

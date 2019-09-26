@@ -7,6 +7,7 @@ import { IUserService } from './user.service.interface';
 import { AbstractService } from '@app/shared/types/abstract.service';
 import { UpdateUserDto } from '@notenic/user/dto/update-user.dto';
 import { TokenService } from '@notenic/auth/token/token.service';
+import { FollowUserDto } from '@notenic/user/dto/follow-user.dto';
 
 const userNotFoundMessage = 'User not found.';
 
@@ -18,6 +19,16 @@ export class UserService extends AbstractService<User> implements IUserService {
 
   async getOneByEmail(email: string): Promise<User> {
     return await this.repository.findOne({ where: { email } });
+  }
+
+  async getOneByEmailComplete(email: string): Promise<User> {
+    return await this.repository.createQueryBuilder('u')
+      .select(['u', 'following.id', 'following.username', 'following.image', 'following.gender', 'follower.id', 'follower.username',
+        'follower.image', 'follower.gender'])
+      .leftJoin('u.following', 'following')
+      .leftJoin('u.followers', 'follower')
+      .where('u.email = :email', { email })
+      .getOne();
   }
 
   async getOneByUsername(username: string): Promise<User> {
@@ -72,9 +83,11 @@ export class UserService extends AbstractService<User> implements IUserService {
 
     const user = await this.repository.createQueryBuilder('u')
       .select(['u.id', 'u.image', 'u.gender', 'u.education', 'u.work', 'u.about', 'note.id', 'note.image', 'note.likes', 'note.tags', 'note.title',
-        'note.createdAt', 'u.username', 'u.firstName', 'u.lastName', 'u.createdAt', 'comment.id'])
+        'note.createdAt', 'u.username', 'u.firstName', 'u.lastName', 'u.createdAt', 'comment.id', 'following.id', 'follower.id'])
       .leftJoin('u.notes', 'note', 'note.public IN (:...pub)', { pub })
       .leftJoin('note.comments', 'comment')
+      .leftJoin('u.following', 'following')
+      .leftJoin('u.followers', 'follower')
       .where('u.username = :username', { username })
       .getOne();
 
@@ -120,5 +133,33 @@ export class UserService extends AbstractService<User> implements IUserService {
       .select(['u.id', 'u.image', 'u.gender', 'u.education', 'u.work', 'u.about', 'u.username', 'u.firstName', 'u.lastName'])
       .where('u.id = :id', { id: userId })
       .getOne();
+  }
+
+  async followUser(user: User, followUserDto: FollowUserDto): Promise<User> {
+    const u = await this.repository.createQueryBuilder('u')
+      .leftJoinAndSelect('u.following', 'following')
+      .where('u.id = :id', { id: user.id })
+      .getOne()
+    ;
+    const userToFollow = await this.repository.findOne(followUserDto.userId);
+
+    if (!u || !userToFollow) {
+      throw new NotFoundException('User not found.');
+    }
+
+    if (u.following.find(usr => usr.id === userToFollow.id)) {
+      u.following = u.following.filter(usr => usr.id !== userToFollow.id);
+    } else {
+      u.following.push(userToFollow);
+    }
+    await this.repository.save(u);
+
+    const res: User = new User();
+    res.id = userToFollow.id;
+    res.username = userToFollow.username;
+    res.gender = userToFollow.gender;
+    res.image = userToFollow.image;
+
+    return res;
   }
 }
