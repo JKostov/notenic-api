@@ -8,6 +8,7 @@ import { AbstractService } from '@app/shared/types/abstract.service';
 import { UpdateUserDto } from '@notenic/user/dto/update-user.dto';
 import { TokenService } from '@notenic/auth/token/token.service';
 import { FollowUserDto } from '@notenic/user/dto/follow-user.dto';
+import { Note } from '@notenic/note/note.entity';
 
 const userNotFoundMessage = 'User not found.';
 
@@ -24,9 +25,10 @@ export class UserService extends AbstractService<User> implements IUserService {
   async getOneByEmailComplete(email: string): Promise<User> {
     return await this.repository.createQueryBuilder('u')
       .select(['u', 'following.id', 'following.username', 'following.image', 'following.gender', 'follower.id', 'follower.username',
-        'follower.image', 'follower.gender'])
+        'follower.image', 'follower.gender', 'note.id'])
       .leftJoin('u.following', 'following')
       .leftJoin('u.followers', 'follower')
+      .leftJoin('u.bookmarkedNotes', 'note')
       .where('u.email = :email', { email })
       .getOne();
   }
@@ -161,5 +163,20 @@ export class UserService extends AbstractService<User> implements IUserService {
     res.image = userToFollow.image;
 
     return res;
+  }
+
+  async bookmarkNote(user: User, note: Note): Promise<void> {
+    const u = await this.repository.createQueryBuilder('u')
+      .leftJoinAndSelect('u.bookmarkedNotes', 'note')
+      .where('u.id = :id', { id: user.id })
+      .getOne()
+    ;
+
+    if (u.bookmarkedNotes.find(n => n.id === note.id)) {
+      u.bookmarkedNotes = u.bookmarkedNotes.filter(n => n.id !== note.id);
+    } else {
+      u.bookmarkedNotes.push(note);
+    }
+    await this.repository.save(u);
   }
 }

@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne, ManyToMany, JoinTable } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 import { User } from '@notenic/user/user.entity';
 import { Comment } from '@notenic/comment/comment.entity';
@@ -41,6 +41,9 @@ export class Note {
 
   @OneToMany(type => Comment, comment => comment.note)
   comments: Comment[];
+
+  @ManyToMany(type => User, user => user.bookmarkedNotes)
+  usersBookmarkedNote: User[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

@@ -9,6 +9,7 @@ import { plainToClass } from 'class-transformer';
 import { User } from '@notenic/user/user.entity';
 import { IUserService } from '@notenic/user/user.service.interface';
 import { LikeNoteDto } from '@notenic/note/dto/like-note.dto';
+import { BookmarkNoteDto } from '@notenic/note/dto/bookmark-note.dto';
 
 @Injectable()
 export class NoteService implements INoteService {
@@ -95,5 +96,28 @@ export class NoteService implements INoteService {
     note.likes.splice(index, 1);
     await this.noteRepository.save(note);
     return true;
+  }
+
+  async bookmarkNote(bookmarkNoteDto: BookmarkNoteDto, user: User): Promise<Note> {
+    const note = await this.getPublicNoteById(bookmarkNoteDto.noteId);
+
+    if (!note) {
+      throw new NotFoundException('Note not found.');
+    }
+
+    await this.userService.bookmarkNote(user, note);
+
+    const res = new Note();
+    res.id = note.id;
+    return res;
+  }
+
+  async getBookmarkedNotes(user: User): Promise<Note[]> {
+    return await this.noteRepository.createQueryBuilder('n')
+      .select(['n', 'comment.id'])
+      .innerJoin('n.usersBookmarkedNote', 'u', 'u.id = :id', { id: user.id })
+      .leftJoin('n.comments', 'comment')
+      .getMany()
+    ;
   }
 }

@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 import { PasswordReset } from '@notenic/auth/password-reset.entity';
 import { Note } from '@notenic/note/note.entity';
@@ -108,4 +108,10 @@ export class User {
 
   @ManyToMany(type => User, user => user.following)
   followers: User[];
+
+  @ManyToMany(type => Note, note => note.usersBookmarkedNote)
+  @JoinTable({
+    name: 'users_bookmarked_notes',
+  })
+  bookmarkedNotes: Note[];
 }

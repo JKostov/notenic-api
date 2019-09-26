@@ -8,6 +8,7 @@ import { IUserService } from '@notenic/user/user.service.interface';
 import { LoggedGuard } from '@app/shared/guards/logged.guard';
 import { ClientProxy } from '@nestjs/microservices';
 import { first } from 'rxjs/operators';
+import { BookmarkNoteDto } from '@notenic/note/dto/bookmark-note.dto';
 
 @Controller('notes')
 export class NoteController {
@@ -74,5 +75,25 @@ export class NoteController {
     const result = await this.noteService.likeNote(likeNoteDto, user);
 
     return res.status(HttpStatus.OK).json({ success: result });
+  }
+
+  @Post('bookmark')
+  @UseGuards(LoggedGuard)
+  public async bookmarkNote(@Body() bookmarkNoteDto: BookmarkNoteDto, @Req() req, @Res() res) {
+    const user = req.user;
+
+    const result = await this.noteService.bookmarkNote(bookmarkNoteDto, user);
+
+    return res.status(HttpStatus.OK).json(result);
+  }
+
+  @Get('bookmarked')
+  @UseGuards(LoggedGuard)
+  public async bookmarkedNotes(@Req() req, @Res() res) {
+    const user = req.user;
+
+    const result = await this.noteService.getBookmarkedNotes(user);
+
+    return res.status(HttpStatus.OK).json(result);
   }
 }
