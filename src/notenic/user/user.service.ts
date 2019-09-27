@@ -30,7 +30,8 @@ export class UserService extends AbstractService<User> implements IUserService {
       .leftJoin('u.followers', 'follower')
       .leftJoin('u.bookmarkedNotes', 'note')
       .where('u.email = :email', { email })
-      .getOne();
+      .getOne()
+    ;
   }
 
   async getOneByUsername(username: string): Promise<User> {
@@ -101,7 +102,15 @@ export class UserService extends AbstractService<User> implements IUserService {
   }
 
   async updateUser(user: User, updateUserDto: UpdateUserDto): Promise<User> {
-    const u = await this.repository.findOne(user.id);
+    const u = await this.repository.createQueryBuilder('u')
+      .select(['u', 'following.id', 'following.username', 'following.image', 'following.gender', 'follower.id', 'follower.username',
+        'follower.image', 'follower.gender', 'note.id'])
+      .leftJoin('u.following', 'following')
+      .leftJoin('u.followers', 'follower')
+      .leftJoin('u.bookmarkedNotes', 'note')
+      .where('u.id = :id', { id: user.id })
+      .getOne()
+    ;
 
     if (!u) {
       throw new NotFoundException('User not found.');
@@ -178,5 +187,23 @@ export class UserService extends AbstractService<User> implements IUserService {
       u.bookmarkedNotes.push(note);
     }
     await this.repository.save(u);
+  }
+
+  async getFollowingUsersForUser(user: User): Promise<User[]> {
+    const u = await this.repository.createQueryBuilder('u')
+      .select(['u', 'user.id', 'user.username', 'user.firstName', 'user.lastName', 'user.gender', 'user.image'])
+      .leftJoin('u.following', 'user')
+      .where('u.id = :id', { id: user.id })
+      .getOne()
+    ;
+
+    return u.following;
+  }
+
+  async getUsersByIds(ids: string[]): Promise<User[]> {
+    return await this.repository.createQueryBuilder('u')
+      .where('u.id IN (:...ids)', { ids })
+      .getMany()
+    ;
   }
 }

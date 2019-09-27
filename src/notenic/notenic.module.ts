@@ -4,6 +4,7 @@ import { DatabaseModule } from '@notenic/database/database.module';
 import { UserModule } from '@notenic/user/user.module';
 import { NoteModule } from './note/note.module';
 import { CommentModule } from './comment/comment.module';
+import { CollaborationModule } from './collaboration/collaboration.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { CommentModule } from './comment/comment.module';
     UserModule,
     NoteModule,
     CommentModule,
+    CollaborationModule,
   ],
 })
 export class NotenicModule {}

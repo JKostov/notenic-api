@@ -26,4 +26,8 @@ export interface IUserService extends IService<User> {
   followUser(user: User, followUserDto: FollowUserDto): Promise<User>;
 
   bookmarkNote(user: User, note: Note): Promise<void>;
+
+  getFollowingUsersForUser(user: User): Promise<User[]>;
+
+  getUsersByIds(ids: string[]): Promise<User[]>;
 }

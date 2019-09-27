@@ -10,6 +10,16 @@ import { FollowUserDto } from '@notenic/user/dto/follow-user.dto';
 export class UserController {
   constructor(@Inject('IUserService') private readonly userService: IUserService) { }
 
+  @Get('user/following')
+  @UseGuards(LoggedGuard)
+  public async getFollowingUsers(@Req() req, @Res() res) {
+    const user: User = req.user;
+
+    const users = await this.userService.getFollowingUsersForUser(user);
+
+    return res.status(HttpStatus.OK).json(users);
+  }
+
   @Get(':username')
   @UseGuards(LoggedOrNotGuard)
   public async getNotes(@Param() param, @Req() req, @Res() res) {

@@ -10,15 +10,17 @@ import { User } from '@notenic/user/user.entity';
 import { IUserService } from '@notenic/user/user.service.interface';
 import { LikeNoteDto } from '@notenic/note/dto/like-note.dto';
 import { BookmarkNoteDto } from '@notenic/note/dto/bookmark-note.dto';
+import { AbstractService } from '@app/shared/types/abstract.service';
 
 @Injectable()
-export class NoteService implements INoteService {
-  constructor(@InjectRepository(Note, DatabaseFactory.connectionName) private noteRepository: Repository<Note>,
+export class NoteService extends AbstractService<Note> implements INoteService {
+  constructor(@InjectRepository(Note, DatabaseFactory.connectionName) noteRepository: Repository<Note>,
               @Inject('IUserService')private userService: IUserService) {
+    super(noteRepository);
   }
 
   async getNotes(limit: number = 10, page: number = 0): Promise<Note[]> {
-    return await this.noteRepository.createQueryBuilder('n')
+    return await this.repository.createQueryBuilder('n')
       .select(['n', 'comment.id', 'u.id', 'u.username', 'u.firstName', 'u.lastName', 'u.gender', 'u.image'])
       .innerJoin('n.user', 'u')
       .leftJoin('n.comments', 'comment')
@@ -36,7 +38,7 @@ export class NoteService implements INoteService {
       throw new BadRequestException('User not found.');
     }
 
-    return await this.noteRepository.createQueryBuilder('n')
+    return await this.repository.createQueryBuilder('n')
       .select(['n', 'u.id', 'user.id', 'user.username', 'user.image', 'user.gender',
         'user.id', 'user.username', 'u.username', 'u.firstName', 'u.lastName', 'u.gender', 'u.image'])
       .innerJoin('n.user', 'u')
@@ -51,7 +53,7 @@ export class NoteService implements INoteService {
   }
 
   async getPublicNoteById(id: string): Promise<Note> {
-    const note = await this.noteRepository.createQueryBuilder('n')
+    const note = await this.repository.createQueryBuilder('n')
       .where('n.public = true')
       .andWhere('n.id = :id')
       .setParameter('id', id)
@@ -68,7 +70,7 @@ export class NoteService implements INoteService {
   async createNote(createNoteDto: CreateNoteDto, user: User): Promise<Note> {
     const note = plainToClass(Note, createNoteDto);
     note.user = user;
-    return await this.noteRepository.save(note);
+    return await this.repository.save(note);
   }
 
   async likeNote(likeNoteDto: LikeNoteDto, user: User): Promise<boolean> {
@@ -84,7 +86,7 @@ export class NoteService implements INoteService {
 
     if (likeNoteDto.like) {
       note.likes.push(user.id);
-      await this.noteRepository.save(note);
+      await this.repository.save(note);
       return true;
     }
 
@@ -94,7 +96,7 @@ export class NoteService implements INoteService {
     }
 
     note.likes.splice(index, 1);
-    await this.noteRepository.save(note);
+    await this.repository.save(note);
     return true;
   }
 
@@ -113,10 +115,11 @@ export class NoteService implements INoteService {
   }
 
   async getBookmarkedNotes(user: User): Promise<Note[]> {
-    return await this.noteRepository.createQueryBuilder('n')
-      .select(['n', 'comment.id'])
+    return await this.repository.createQueryBuilder('n')
+      .select(['n', 'comment.id', 'user.id', 'user.image', 'user.image', 'user.gender', 'user.username'])
       .innerJoin('n.usersBookmarkedNote', 'u', 'u.id = :id', { id: user.id })
       .leftJoin('n.comments', 'comment')
+      .innerJoin('n.user', 'user')
       .getMany()
     ;
   }

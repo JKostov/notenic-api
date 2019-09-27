@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateCol
 import { Exclude, Expose } from 'class-transformer';
 import { PasswordReset } from '@notenic/auth/password-reset.entity';
 import { Note } from '@notenic/note/note.entity';
+import { Collaboration } from '@notenic/collaboration/collaboration.entity';
 
 @Exclude()
 @Entity({
@@ -95,6 +96,15 @@ export class User {
 
   @OneToMany(type => Note, note => note.user)
   notes: Note[];
+
+  @OneToMany(type => Collaboration, collaboration => collaboration.user)
+  ownedCollaborations: Collaboration[];
+
+  @ManyToMany(type => Collaboration, collaboration => collaboration.collaborators)
+  @JoinTable({
+    name: 'users_collaborations',
+  })
+  collaborations: Collaboration[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
