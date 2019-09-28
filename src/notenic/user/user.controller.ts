@@ -5,6 +5,7 @@ import { UpdateUserDto } from '@notenic/user/dto/update-user.dto';
 import { LoggedGuard } from '@app/shared/guards/logged.guard';
 import { LoggedOrNotGuard } from '@app/shared/guards/logged-or-not.guard';
 import { FollowUserDto } from '@notenic/user/dto/follow-user.dto';
+import { MessagePattern } from '@nestjs/microservices';
 
 @Controller('users')
 export class UserController {
@@ -54,5 +55,10 @@ export class UserController {
     const user = await this.userService.followUser(loggedUser, followUserDto);
 
     return res.status(HttpStatus.OK).json(user);
+  }
+
+  @MessagePattern({ cmd: 'checkUserCollaboration' })
+  async checkUserCollaboration(data: { user: User, collaborationId: string }): Promise<boolean> {
+    return await this.userService.checkUserCollaboration(data.user, data.collaborationId);
   }
 }

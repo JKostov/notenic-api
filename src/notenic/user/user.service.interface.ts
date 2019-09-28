@@ -30,4 +30,6 @@ export interface IUserService extends IService<User> {
   getFollowingUsersForUser(user: User): Promise<User[]>;
 
   getUsersByIds(ids: string[]): Promise<User[]>;
+
+  checkUserCollaboration(user: User, collaborationId: string): Promise<boolean>;
 }

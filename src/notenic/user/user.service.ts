@@ -206,4 +206,13 @@ export class UserService extends AbstractService<User> implements IUserService {
       .getMany()
     ;
   }
+
+  async checkUserCollaboration(user: User, collaborationId: string): Promise<boolean> {
+    const u = await this.repository.createQueryBuilder('u')
+      .leftJoinAndSelect('u.collaborations', 'col', 'col.id = :id', { id: collaborationId })
+      .where('u.id = :userId', { userId: user.id })
+      .getOne();
+
+    return u.collaborations.length > 0;
+  }
 }
