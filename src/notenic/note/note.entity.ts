@@ -36,6 +36,10 @@ export class Note {
   @Column('text', { array: true, nullable: true })
   likes: string[];
 
+  @Expose()
+  @Column('text', { array: true, nullable: true })
+  collaborators: string[];
+
   @ManyToOne(type => User, user => user.notes)
   user: User;
 

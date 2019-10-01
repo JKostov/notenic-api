@@ -23,7 +23,7 @@ export interface IUserService extends IService<User> {
 
   getByIdPublic(userId: string): Promise<User>;
 
-  followUser(user: User, followUserDto: FollowUserDto): Promise<User>;
+  followUser(user: User, followUserDto: FollowUserDto): Promise<{ user: User, follow: boolean }>;
 
   bookmarkNote(user: User, note: Note): Promise<void>;
 
@@ -32,4 +32,10 @@ export interface IUserService extends IService<User> {
   getUsersByIds(ids: string[]): Promise<User[]>;
 
   checkUserCollaboration(user: User, collaborationId: string): Promise<boolean>;
+
+  getUsersPublicDataByIds(ids: string[]): Promise<User[]>;
+
+  getUserImageData(id: string): Promise<User>;
+
+  getFollowersForUser(user: User): Promise<string[]>;
 }

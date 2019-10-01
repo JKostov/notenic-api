@@ -54,8 +54,10 @@ export class NoteService extends AbstractService<Note> implements INoteService {
 
   async getPublicNoteById(id: string): Promise<Note> {
     const note = await this.repository.createQueryBuilder('n')
+      .select(['n', 'u.id', 'u.username'])
       .where('n.public = true')
       .andWhere('n.id = :id')
+      .innerJoinAndSelect('n.user', 'u')
       .setParameter('id', id)
       .getOne()
     ;
@@ -73,7 +75,7 @@ export class NoteService extends AbstractService<Note> implements INoteService {
     return await this.repository.save(note);
   }
 
-  async likeNote(likeNoteDto: LikeNoteDto, user: User): Promise<boolean> {
+  async likeNote(likeNoteDto: LikeNoteDto, user: User): Promise<Note> {
     const note = await this.getPublicNoteById(likeNoteDto.noteId);
 
     if (!note) {
@@ -87,17 +89,17 @@ export class NoteService extends AbstractService<Note> implements INoteService {
     if (likeNoteDto.like) {
       note.likes.push(user.id);
       await this.repository.save(note);
-      return true;
+      return note;
     }
 
     const index = note.likes.indexOf(user.id);
     if (index === -1) {
-      return false;
+      return null;
     }
 
     note.likes.splice(index, 1);
     await this.repository.save(note);
-    return true;
+    return note;
   }
 
   async bookmarkNote(bookmarkNoteDto: BookmarkNoteDto, user: User): Promise<Note> {
@@ -122,5 +124,16 @@ export class NoteService extends AbstractService<Note> implements INoteService {
       .innerJoin('n.user', 'user')
       .getMany()
     ;
+  }
+
+  async getCollaborators(id: string): Promise<User[]> {
+    const note = await this.repository.findOne(id);
+
+    if (!note) {
+      throw new NotFoundException('Note not found.');
+    }
+
+    const userIds = note.collaborators;
+    return await this.userService.getUsersPublicDataByIds(userIds);
   }
 }

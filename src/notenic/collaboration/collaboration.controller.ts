@@ -4,6 +4,7 @@ import { User } from '@notenic/user/user.entity';
 import { ICollaborationService } from '@notenic/collaboration/collaboration.service.interface';
 import { CreateCollaborationDto } from '@notenic/collaboration/dto/create-collaboration.dto';
 import { UpdateCollaboratorsDto } from '@notenic/collaboration/dto/update-collaborators.dto';
+import { SaveCollaborationStateDto } from '@notenic/collaboration/dto/save-collaboration-state.dto';
 
 @Controller('collaborations')
 export class CollaborationController {
@@ -48,5 +49,25 @@ export class CollaborationController {
     const collaborators = await this.collaborationService.updateCollaborators(user, updateCollaboratorsDto);
 
     return res.status(HttpStatus.OK).json(collaborators);
+  }
+
+  @Post('save-state')
+  @UseGuards(LoggedGuard)
+  public async saveCollaborationState(@Req() req, @Res() res, @Body() saveCollaborationStateDto: SaveCollaborationStateDto) {
+    const user: User = req.user;
+
+    const result = await this.collaborationService.saveCollaborationState(user, saveCollaborationStateDto);
+
+    return res.status(HttpStatus.OK).json(result);
+  }
+
+  @Post('publish')
+  @UseGuards(LoggedGuard)
+  public async publishCollaboration(@Req() req, @Res() res, @Body() saveCollaborationStateDto: SaveCollaborationStateDto) {
+    const user: User = req.user;
+
+    const result = await this.collaborationService.publishCollaboration(user, saveCollaborationStateDto);
+
+    return res.status(HttpStatus.OK).json(result);
   }
 }

@@ -6,12 +6,14 @@ import { SharedModule } from '@app/shared/shared.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Collaboration } from '@notenic/collaboration/collaboration.entity';
 import { UserModule } from '@notenic/user/user.module';
+import { NoteModule } from '@notenic/note/note.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Collaboration], DatabaseFactory.connectionName),
     SharedModule,
     UserModule,
+    NoteModule,
   ],
   providers: [{
     provide: 'ICollaborationService',

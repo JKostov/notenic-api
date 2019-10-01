@@ -1,4 +1,4 @@
-import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ICollaborationService } from '@notenic/collaboration/collaboration.service.interface';
 import { AbstractService } from '@app/shared/types/abstract.service';
 import { Collaboration } from '@notenic/collaboration/collaboration.entity';
@@ -10,11 +10,16 @@ import { CreateCollaborationDto } from '@notenic/collaboration/dto/create-collab
 import { plainToClass } from 'class-transformer';
 import { IUserService } from '@notenic/user/user.service.interface';
 import { UpdateCollaboratorsDto } from '@notenic/collaboration/dto/update-collaborators.dto';
+import { SaveCollaborationStateDto } from '@notenic/collaboration/dto/save-collaboration-state.dto';
+import { Note } from '@notenic/note/note.entity';
+import { INoteService } from '@notenic/note/note.service.interface';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class CollaborationService extends AbstractService<Collaboration> implements ICollaborationService {
   constructor(@InjectRepository(Collaboration, DatabaseFactory.connectionName) collaborationRepository: Repository<Collaboration>,
-              @Inject('IUserService') private usersService: IUserService) {
+              @Inject('IUserService') private usersService: IUserService, @Inject('INoteService') private noteService: INoteService,
+              @Inject('SERVICES_CLIENT') private readonly client: ClientProxy) {
     super(collaborationRepository);
   }
 
@@ -24,8 +29,15 @@ export class CollaborationService extends AbstractService<Collaboration> impleme
 
     collaboration.user = users[0];
     collaboration.collaborators = users;
+    collaboration.public = true;
 
     await this.repository.save(collaboration);
+
+    this.client.emit('created_collaboration', {
+      recipients: collaboration.collaborators.map(c => c.id),
+      userId: user.id,
+      note: null,
+    });
 
     delete collaboration.user;
     delete collaboration.collaborators;
@@ -61,9 +73,17 @@ export class CollaborationService extends AbstractService<Collaboration> impleme
       throw new ForbiddenException();
     }
 
+    const newCollaborators = updateCollaboratorsDto.collaborators.filter(c => !collaboration.collaborators.find(cc => cc.id === c));
+
     collaboration.collaborators = await this.usersService.getUsersByIds([user.id, ...updateCollaboratorsDto.collaborators]);
 
     await this.repository.save(collaboration);
+
+    this.client.emit('created_collaboration', {
+      recipients: newCollaborators,
+      userId: user.id,
+      note: null,
+    });
 
     return collaboration.collaborators.map(c => {
       const u = new User();
@@ -82,5 +102,60 @@ export class CollaborationService extends AbstractService<Collaboration> impleme
       .innerJoin('c.user', 'user')
       .getMany()
     ;
+  }
+
+  async saveCollaborationState(user: User, saveCollaborationStateDto: SaveCollaborationStateDto): Promise<boolean> {
+    const collaboration = await this.repository.createQueryBuilder('c')
+      .leftJoinAndSelect('c.collaborators', 'u', 'u.id = :userId', { userId: user.id })
+      .where('c.id = :id', { id: saveCollaborationStateDto.id })
+      .getOne()
+    ;
+
+    if (!collaboration) {
+      throw new NotFoundException();
+    }
+
+    await this.repository.createQueryBuilder()
+      .update(Collaboration)
+      .set({
+        title: saveCollaborationStateDto.title,
+        markdown: saveCollaborationStateDto.markdown,
+        image: saveCollaborationStateDto.image,
+        tags: saveCollaborationStateDto.tags,
+        // public: saveCollaborationStateDto.public,
+      })
+      .where('id = :id', { id: collaboration.id })
+      .execute()
+    ;
+
+    return true;
+  }
+
+  async publishCollaboration(user: User, saveCollaborationStateDto: SaveCollaborationStateDto): Promise<any> {
+    const collaboration = await this.repository.createQueryBuilder('c')
+      .leftJoinAndSelect('c.collaborators', 'u')
+      .innerJoinAndSelect('c.user', 'user')
+      .where('c.id = :id', { id: saveCollaborationStateDto.id })
+      .getOne()
+    ;
+
+    if (!collaboration) {
+      throw new NotFoundException();
+    }
+
+    const note = new Note();
+    note.title = saveCollaborationStateDto.title;
+    note.image = saveCollaborationStateDto.image;
+    note.user = collaboration.user;
+    note.tags = saveCollaborationStateDto.tags;
+    note.markdown = saveCollaborationStateDto.markdown;
+    note.public = true;
+    note.collaborators = collaboration.collaborators.map(c => c.id);
+
+    await this.noteService.create(note);
+
+    await this.repository.delete(collaboration);
+
+    return;
   }
 }

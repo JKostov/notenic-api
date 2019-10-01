@@ -7,7 +7,6 @@ import { LikeNoteDto } from '@notenic/note/dto/like-note.dto';
 import { IUserService } from '@notenic/user/user.service.interface';
 import { LoggedGuard } from '@app/shared/guards/logged.guard';
 import { ClientProxy } from '@nestjs/microservices';
-import { first } from 'rxjs/operators';
 import { BookmarkNoteDto } from '@notenic/note/dto/bookmark-note.dto';
 
 @Controller('notes')
@@ -15,7 +14,8 @@ export class NoteController {
   constructor(@Inject('INoteService') private readonly noteService: INoteService,
               @Inject('ICommentService') private readonly commentService: ICommentService,
               @Inject('IUserService') private readonly userService: IUserService,
-              @Inject('SERVICES_CLIENT') private readonly client: ClientProxy) { }
+              @Inject('SERVICES_CLIENT') private readonly client: ClientProxy) {
+  }
 
   @Get('')
   public async getNotes(@Req() req, @Res() res) {
@@ -24,16 +24,18 @@ export class NoteController {
     return res.status(HttpStatus.OK).json(notes);
   }
 
+  @Get(':id/collaborators/data')
+  public async getCollaborators(@Param() param, @Res() res) {
+    const id = param.id;
+    const users = await this.noteService.getCollaborators(id);
+
+    return res.status(HttpStatus.OK).json(users);
+  }
+
   @Get(':username/:noteTitle')
   public async getNote(@Param() param, @Res() res) {
     const username = param.username;
     const noteTitle = param.noteTitle;
-
-    const data = await this.client.send<number>({ cmd: 'sum' }, [1, 2, 3, 4]);
-    data.pipe(first()).subscribe(asd => console.log(asd));
-
-    const asd = this.client.emit('test_test', 'api');
-    asd.pipe(first()).subscribe();
 
     const note = await this.noteService.getPublicNote(username, noteTitle);
     if (!note) {
@@ -48,7 +50,16 @@ export class NoteController {
   public async publishNote(@Body() createNoteDto: CreateNoteDto, @Req() req, @Res() res) {
     const user = req.user;
 
-    await this.noteService.createNote(createNoteDto, user);
+    const followers = await this.userService.getFollowersForUser(user);
+    const note = await this.noteService.createNote(createNoteDto, user);
+
+    if (followers.length > 0 && note && note.public) {
+      this.client.emit('published_note', {
+        recipients: followers,
+        userId: user.id,
+        note: { username: user.username, title: note.title },
+      });
+    }
 
     return res.status(HttpStatus.OK).json({ success: true });
   }
@@ -64,6 +75,14 @@ export class NoteController {
 
     const comment = await this.commentService.createComment(addCommentDto.markdown, note, u);
 
+    if (comment && note) {
+      this.client.emit('commented_note', {
+        recipient: note.user.id,
+        userId: user.id,
+        note: { username: note.user.username, title: note.title },
+      });
+    }
+
     return res.status(HttpStatus.OK).json(comment);
   }
 
@@ -72,7 +91,17 @@ export class NoteController {
   public async likeNote(@Body() likeNoteDto: LikeNoteDto, @Req() req, @Res() res) {
     const user = req.user;
 
-    const result = await this.noteService.likeNote(likeNoteDto, user);
+    const likedNote = await this.noteService.likeNote(likeNoteDto, user);
+
+    let result = false;
+    if (likedNote && likeNoteDto.like) {
+      this.client.emit('liked_note', {
+        recipient: likedNote.user.id,
+        userId: user.id,
+        note: { username: likedNote.user.username, title: likedNote.title },
+      });
+      result = true;
+    }
 
     return res.status(HttpStatus.OK).json({ success: result });
   }

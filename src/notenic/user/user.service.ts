@@ -146,7 +146,7 @@ export class UserService extends AbstractService<User> implements IUserService {
       .getOne();
   }
 
-  async followUser(user: User, followUserDto: FollowUserDto): Promise<User> {
+  async followUser(user: User, followUserDto: FollowUserDto): Promise<{ user: User, follow: boolean }> {
     const u = await this.repository.createQueryBuilder('u')
       .leftJoinAndSelect('u.following', 'following')
       .where('u.id = :id', { id: user.id })
@@ -158,8 +158,10 @@ export class UserService extends AbstractService<User> implements IUserService {
       throw new NotFoundException('User not found.');
     }
 
+    let follow = true;
     if (u.following.find(usr => usr.id === userToFollow.id)) {
       u.following = u.following.filter(usr => usr.id !== userToFollow.id);
+      follow = false;
     } else {
       u.following.push(userToFollow);
     }
@@ -171,7 +173,7 @@ export class UserService extends AbstractService<User> implements IUserService {
     res.gender = userToFollow.gender;
     res.image = userToFollow.image;
 
-    return res;
+    return { user: res, follow };
   }
 
   async bookmarkNote(user: User, note: Note): Promise<void> {
@@ -207,6 +209,14 @@ export class UserService extends AbstractService<User> implements IUserService {
     ;
   }
 
+  async getUsersPublicDataByIds(ids: string[]): Promise<User[]> {
+    return await this.repository.createQueryBuilder('u')
+      .select(['u.id', 'u.username', 'u.gender', 'u.image'])
+      .where('u.id IN (:...ids)', { ids })
+      .getMany()
+      ;
+  }
+
   async checkUserCollaboration(user: User, collaborationId: string): Promise<boolean> {
     const u = await this.repository.createQueryBuilder('u')
       .leftJoinAndSelect('u.collaborations', 'col', 'col.id = :id', { id: collaborationId })
@@ -214,5 +224,24 @@ export class UserService extends AbstractService<User> implements IUserService {
       .getOne();
 
     return u.collaborations.length > 0;
+  }
+
+  async getUserImageData(id: string): Promise<User> {
+    return await this.repository.createQueryBuilder('u')
+      .select(['u.id', 'u.username', 'u.gender', 'u.image'])
+      .where('u.id = :id', { id })
+      .getOne()
+    ;
+  }
+
+  async getFollowersForUser(user: User): Promise<string[]> {
+    const u = await this.repository.createQueryBuilder('u')
+      .select(['u.id', 'user.id'])
+      .where('u.id = :id', { id: user.id })
+      .leftJoin('u.followers', 'user')
+      .getOne()
+    ;
+
+    return u.followers.map(f => f.id);
   }
 }

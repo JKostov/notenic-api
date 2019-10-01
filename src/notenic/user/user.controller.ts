@@ -5,11 +5,11 @@ import { UpdateUserDto } from '@notenic/user/dto/update-user.dto';
 import { LoggedGuard } from '@app/shared/guards/logged.guard';
 import { LoggedOrNotGuard } from '@app/shared/guards/logged-or-not.guard';
 import { FollowUserDto } from '@notenic/user/dto/follow-user.dto';
-import { MessagePattern } from '@nestjs/microservices';
+import { ClientProxy, MessagePattern } from '@nestjs/microservices';
 
 @Controller('users')
 export class UserController {
-  constructor(@Inject('IUserService') private readonly userService: IUserService) { }
+  constructor(@Inject('IUserService') private readonly userService: IUserService, @Inject('SERVICES_CLIENT') private readonly client: ClientProxy) { }
 
   @Get('user/following')
   @UseGuards(LoggedGuard)
@@ -37,6 +37,15 @@ export class UserController {
     return res.status(HttpStatus.OK).json(user);
   }
 
+  @Get(':id/image-data')
+  public async getUserImageData(@Param() param, @Req() req, @Res() res) {
+    const id = param.id;
+
+    const user = await this.userService.getUserImageData(id);
+
+    return res.status(HttpStatus.OK).json(user);
+  }
+
   @Post('')
   @UseGuards(LoggedGuard)
   public async updateUser(@Body() updateUserDto: UpdateUserDto, @Req() req, @Res() res) {
@@ -52,9 +61,17 @@ export class UserController {
   public async followUser(@Body() followUserDto: FollowUserDto, @Req() req, @Res() res) {
     const loggedUser: User = req.user;
 
-    const user = await this.userService.followUser(loggedUser, followUserDto);
+    const result: { user: User, follow: boolean } = await this.userService.followUser(loggedUser, followUserDto);
 
-    return res.status(HttpStatus.OK).json(user);
+    if (result && result.follow) {
+      this.client.emit('user_followed', {
+        recipient: followUserDto.userId,
+        userId: loggedUser.id,
+        note: null,
+      });
+    }
+
+    return res.status(HttpStatus.OK).json(result.user);
   }
 
   @MessagePattern({ cmd: 'checkUserCollaboration' })

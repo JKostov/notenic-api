@@ -10,7 +10,8 @@ export interface INoteService extends IService<Note> {
   getPublicNoteById(id: string): Promise<Note>;
   getNotes(limit?: number, page?: number): Promise<Note[]>;
   createNote(createNoteDto: CreateNoteDto, user: User): Promise<Note>;
-  likeNote(likeNoteDto: LikeNoteDto, user: User): Promise<boolean>;
+  likeNote(likeNoteDto: LikeNoteDto, user: User): Promise<Note>;
   bookmarkNote(bookmarkNoteDto: BookmarkNoteDto, user: User): Promise<Note>;
   getBookmarkedNotes(user: User): Promise<Note[]>;
+  getCollaborators(id: string): Promise<User[]>;
 }

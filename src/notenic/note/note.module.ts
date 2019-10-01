@@ -18,6 +18,7 @@ import { SharedModule } from '@app/shared/shared.module';
   providers: [
     { provide: 'INoteService', useClass: NoteService},
   ],
+  exports: ['INoteService'],
   controllers: [NoteController],
 })
 export class NoteModule {}
