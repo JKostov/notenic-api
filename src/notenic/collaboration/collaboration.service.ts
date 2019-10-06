@@ -27,14 +27,14 @@ export class CollaborationService extends AbstractService<Collaboration> impleme
     const collaboration = plainToClass(Collaboration, createCollaborationDto);
     const users = await this.usersService.getUsersByIds([user.id, ...createCollaborationDto.collaborators]);
 
-    collaboration.user = users[0];
+    collaboration.user = users.find(u => u.id === user.id);
     collaboration.collaborators = users;
     collaboration.public = true;
 
     await this.repository.save(collaboration);
 
     this.client.emit('created_collaboration', {
-      recipients: collaboration.collaborators.map(c => c.id),
+      recipients: collaboration.collaborators.filter(c => c.id !== collaboration.user.id).map(c => c.id),
       userId: user.id,
       note: null,
     });
@@ -152,9 +152,18 @@ export class CollaborationService extends AbstractService<Collaboration> impleme
     note.public = true;
     note.collaborators = collaboration.collaborators.map(c => c.id);
 
+    const followers = await this.usersService.getFollowersForUser(user);
     await this.noteService.create(note);
 
-    await this.repository.delete(collaboration);
+    if (followers.length > 0 && note && note.public) {
+      this.client.emit('published_note', {
+        recipients: followers,
+        userId: user.id,
+        note: { username: user.username, title: note.title },
+      });
+    }
+
+    await this.repository.delete(collaboration.id);
 
     return;
   }
