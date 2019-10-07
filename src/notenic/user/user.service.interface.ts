@@ -38,4 +38,6 @@ export interface IUserService extends IService<User> {
   getUserImageData(id: string): Promise<User>;
 
   getFollowersForUser(user: User): Promise<string[]>;
+
+  getUsersPublicDataLikeUsername(username: string): Promise<User[]>;
 }

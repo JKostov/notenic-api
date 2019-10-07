@@ -21,6 +21,15 @@ export class UserController {
     return res.status(HttpStatus.OK).json(users);
   }
 
+  @Get('public/:username')
+  public async getUsersPublicData(@Param() param, @Req() req, @Res() res) {
+    const username = param.username;
+
+    const users = await this.userService.getUsersPublicDataLikeUsername(username);
+
+    return res.status(HttpStatus.OK).json(users);
+  }
+
   @Get(':username')
   @UseGuards(LoggedOrNotGuard)
   public async getNotes(@Param() param, @Req() req, @Res() res) {

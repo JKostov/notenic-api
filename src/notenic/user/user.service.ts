@@ -244,4 +244,13 @@ export class UserService extends AbstractService<User> implements IUserService {
 
     return u.followers.map(f => f.id);
   }
+
+  async getUsersPublicDataLikeUsername(username: string): Promise<User[]> {
+    return await this.repository.createQueryBuilder('u')
+      .select(['u.id', 'u.username', 'u.image', 'u.gender'])
+      .where('u.username LIKE :username', { username: `%${username}%` })
+      .take(7)
+      .getMany()
+    ;
+  }
 }
